@@ -7,7 +7,7 @@ import com.example.liftoff.storage.file.FileStorage;
  * A generic abstract extractor class, that holds
  * the typical email extraction methods.
  */
-abstract class EmailExtractor implements Extractor {
+public abstract class EmailExtractor implements Extractor {
     protected boolean isAuthenticated = false;
     protected final String emailAddress;
     protected final String userToken;
@@ -19,7 +19,7 @@ abstract class EmailExtractor implements Extractor {
         this.storage = storage;
     }
 
-    abstract protected void authenticate() throws Exception;
+    public abstract void authenticate() throws Exception;
 
-    abstract protected void close() throws Exception;
+    public abstract void close() throws Exception;
 }

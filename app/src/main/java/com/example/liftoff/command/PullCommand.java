@@ -1,8 +1,10 @@
 package com.example.liftoff.command;
 
+import com.example.liftoff.extractor.email.EmailExtractor;
+import com.example.liftoff.extractor.email.GmailExtractor;
 import com.example.liftoff.extractor.email.ImapGmailExtractor;
+import com.example.liftoff.extractor.email.OutlookExtractor;
 import com.example.liftoff.storage.file.FileStorage;
-import jakarta.mail.MessagingException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,23 +53,43 @@ class PullCommand implements Command {
     }
 
     /**
-     * Constructs an appropriate extractor object (eg. ${code ImapGmailExtractor}) and
-     * a storage object (eg. ${code FileStorage}) for the successful email attachments download
+     * Returns the specific ${@code EmailExtractor} implementation,
+     * depending on the email adrress provided to the application
      */
-    @Override
-    public void execute() {
+    private EmailExtractor chooseSpecificEmailExtractor() {
         final var pathForStorage = this.destinationDirectory
                 .map(s -> Paths.get(s).toAbsolutePath())
                 .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
         System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
         final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
-        final var emailExtractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+
+        // TODO: Depending on the type of email choose ImapGmail/Gmail/Outlook extractor
+        // For now fallback to the default ImapGmailAPI
+        EmailExtractor extractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        if (this.emailAddress.endsWith("@gmail.com")) {
+            extractor = new GmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        } else if (emailAddress.endsWith("@outlook.com")) {
+            extractor = new OutlookExtractor(this.emailAddress, this.userToken, fileStorage);
+        }
+        // For now fallback to the default ImapGmailAPI
+        extractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        return extractor;
+
+    }
+
+    /**
+     * Constructs an appropriate extractor object (eg. ${code ImapGmailExtractor}) and
+     * a storage object (eg. ${code FileStorage}) for the successful email attachments download
+     */
+    @Override
+    public void execute() {
+        final var emailExtractor = this.chooseSpecificEmailExtractor();
         try {
             emailExtractor.authenticate();
             emailExtractor.extract();
             emailExtractor.close();
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
 
