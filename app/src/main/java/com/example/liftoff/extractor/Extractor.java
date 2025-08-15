@@ -5,7 +5,7 @@ package com.example.liftoff.extractor;
  * of the methods necessary for the every type of data extractors,
  * e.g. web service, email, DB, FTP etc.
  */
-interface Extractor {
+public interface Extractor {
     /**
      * This method should hold the main data extraction logic
      */
