@@ -56,25 +56,16 @@ class PullCommand implements Command {
      * Returns the specific ${@code EmailExtractor} implementation,
      * depending on the email adrress provided to the application
      */
-    private EmailExtractor chooseSpecificEmailExtractor() {
-        final var pathForStorage = this.destinationDirectory
-                .map(s -> Paths.get(s).toAbsolutePath())
-                .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
-        System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
-        final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
-
-        // TODO: Depending on the type of email choose ImapGmail/Gmail/Outlook extractor
-        // For now fallback to the default ImapGmailAPI
-        EmailExtractor extractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+    private EmailExtractor chooseSpecificEmailExtractor(final FileStorage fileStorage) {
+        EmailExtractor extractor;
         if (this.emailAddress.endsWith("@gmail.com")) {
             extractor = new GmailExtractor(this.emailAddress, this.userToken, fileStorage);
         } else if (emailAddress.endsWith("@outlook.com")) {
             extractor = new OutlookExtractor(this.emailAddress, this.userToken, fileStorage);
         }
-        // For now fallback to the default ImapGmailAPI
+        // TODO: Since only ImapGmailAPI is implemented, fallback to it as a default. Remove after implementing GmailExtractor and OutlookExtractor
         extractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
         return extractor;
-
     }
 
     /**
@@ -83,7 +74,13 @@ class PullCommand implements Command {
      */
     @Override
     public void execute() {
-        final var emailExtractor = this.chooseSpecificEmailExtractor();
+        final var pathForStorage = this.destinationDirectory
+                .map(s -> Paths.get(s).toAbsolutePath())
+                .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
+        System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
+        final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
+
+        final var emailExtractor = this.chooseSpecificEmailExtractor(fileStorage);
         try {
             emailExtractor.authenticate();
             emailExtractor.extract();
