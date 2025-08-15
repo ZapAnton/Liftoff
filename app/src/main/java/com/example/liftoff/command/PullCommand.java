@@ -19,7 +19,7 @@ class PullCommand implements Command {
      * Gmail Application password needed to access the email service.
      * TODO: Move this to the properties file
      */
-    private final String appPass;
+    private final String userToken;
     /**
      * An optional directory path for the downloaded attachments
      */
@@ -27,9 +27,9 @@ class PullCommand implements Command {
 
     private static String DEFAULT_DESTINATION_DIRECTORY = "email_attachments_downloads";
 
-    public PullCommand(String emailAddress, String appPass, Optional<String> destinationDirectory) {
+    public PullCommand(String emailAddress, String userToken, Optional<String> destinationDirectory) {
         this.emailAddress = emailAddress;
-        this.appPass = appPass;
+        this.userToken = userToken;
         this.destinationDirectory = destinationDirectory;
     }
 
@@ -60,7 +60,7 @@ class PullCommand implements Command {
         System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
         final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
         final var emailExtractor = new EmailExtractor(fileStorage);
-        emailExtractor.extract(this.emailAddress, this.appPass);
+        emailExtractor.extract(this.emailAddress, this.userToken);
     }
 
 }

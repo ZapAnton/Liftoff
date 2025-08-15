@@ -87,9 +87,9 @@ public class EmailExtractor {
     }
 
 
-    public void extract(final String emailAddress, final String appPass) {
+    public void extract(final String emailAddress, final String userToken) {
         try (final var store = this.session.getStore("imaps")) {
-            store.connect("imap.gmail.com", emailAddress, appPass);
+            store.connect("imap.gmail.com", emailAddress, userToken);
             final var folder = store.getFolder("INBOX");
             folder.open(Folder.READ_ONLY);
             Arrays
