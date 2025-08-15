@@ -1,6 +1,6 @@
 package com.example.liftoff.command;
 
-import com.example.liftoff.extractor.email.EmailExtractor;
+import com.example.liftoff.extractor.email.ImapGmailExtractor;
 import com.example.liftoff.storage.file.FileStorage;
 
 import java.nio.file.Files;
@@ -49,7 +49,7 @@ class PullCommand implements Command {
     }
 
     /**
-     * Constructs an appropriate extractor object (eg. ${code EmailExtractor}) and
+     * Constructs an appropriate extractor object (eg. ${code ImapGmailExtractor}) and
      * a storage object (eg. ${code FileStorage}) for the successful email attachments download
      */
     @Override
@@ -59,7 +59,7 @@ class PullCommand implements Command {
                 .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
         System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
         final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
-        final var emailExtractor = new EmailExtractor(fileStorage);
+        final var emailExtractor = new ImapGmailExtractor(fileStorage);
         emailExtractor.extract(this.emailAddress, this.userToken);
     }
 

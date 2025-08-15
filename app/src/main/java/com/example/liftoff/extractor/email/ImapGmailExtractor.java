@@ -5,7 +5,6 @@ import jakarta.mail.*;
 import jakarta.mail.internet.MimeBodyPart;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,11 +15,11 @@ import java.util.stream.Stream;
 /**
  * Implements necessary logic to connect and download attachments from the Gmail address
  */
-public class EmailExtractor {
+public class ImapGmailExtractor {
     private final Session session;
     private final FileStorage storage;
 
-    public EmailExtractor(FileStorage storage) {
+    public ImapGmailExtractor(FileStorage storage) {
         Properties properties = new Properties();
         properties.put("mail.imaps.host", "imap.gmail.com");
         properties.put("mail.imaps.ssl.trust", "imap.gmail.com");
