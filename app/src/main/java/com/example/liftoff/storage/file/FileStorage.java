@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /**
  * Implements logic to save attachments to the file system.
- * TODO: Decouple the saving logic from the ${@code EmailExtractor} class
+ * TODO: Decouple the saving logic from the ${@code ImapGmailExtractor} class
  */
 public class FileStorage {
 

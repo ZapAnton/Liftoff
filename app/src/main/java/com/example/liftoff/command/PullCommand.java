@@ -1,6 +1,9 @@
 package com.example.liftoff.command;
 
 import com.example.liftoff.extractor.email.EmailExtractor;
+import com.example.liftoff.extractor.email.GmailExtractor;
+import com.example.liftoff.extractor.email.ImapGmailExtractor;
+import com.example.liftoff.extractor.email.OutlookExtractor;
 import com.example.liftoff.storage.file.FileStorage;
 
 import java.nio.file.Files;
@@ -16,10 +19,10 @@ class PullCommand implements Command {
      */
     private final String emailAddress;
     /**
-     * Gmail Application password needed to access the email service.
+     * A token needed to access the email service API (Gmail, Graph, etc.).
      * TODO: Move this to the properties file
      */
-    private final String appPass;
+    private final String userToken;
     /**
      * An optional directory path for the downloaded attachments
      */
@@ -27,14 +30,15 @@ class PullCommand implements Command {
 
     private static String DEFAULT_DESTINATION_DIRECTORY = "email_attachments_downloads";
 
-    public PullCommand(String emailAddress, String appPass, Optional<String> destinationDirectory) {
+    public PullCommand(String emailAddress, String userToken, Optional<String> destinationDirectory) {
         this.emailAddress = emailAddress;
-        this.appPass = appPass;
+        this.userToken = userToken;
         this.destinationDirectory = destinationDirectory;
     }
 
     /**
      * Check if the provided {@code destinationDirectory} exists in the file system.
+     *
      * @return ${@code true} if {@code destinationDirectory} exists, {@code false} otherwise
      * TODO: Check for the {@code emailAddress} validity
      */
@@ -49,7 +53,23 @@ class PullCommand implements Command {
     }
 
     /**
-     * Constructs an appropriate extractor object (eg. ${code EmailExtractor}) and
+     * Returns the specific ${@code EmailExtractor} implementation,
+     * depending on the email adrress provided to the application
+     */
+    private EmailExtractor chooseSpecificEmailExtractor(final FileStorage fileStorage) {
+        EmailExtractor extractor;
+        if (this.emailAddress.endsWith("@gmail.com")) {
+            extractor = new GmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        } else if (emailAddress.endsWith("@outlook.com")) {
+            extractor = new OutlookExtractor(this.emailAddress, this.userToken, fileStorage);
+        }
+        // TODO: Since only ImapGmailAPI is implemented, fallback to it as a default. Remove after implementing GmailExtractor and OutlookExtractor
+        extractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        return extractor;
+    }
+
+    /**
+     * Constructs an appropriate extractor object (eg. ${code ImapGmailExtractor}) and
      * a storage object (eg. ${code FileStorage}) for the successful email attachments download
      */
     @Override
@@ -59,8 +79,15 @@ class PullCommand implements Command {
                 .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
         System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
         final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
-        final var emailExtractor = new EmailExtractor(fileStorage);
-        emailExtractor.extract(this.emailAddress, this.appPass);
+
+        final var emailExtractor = this.chooseSpecificEmailExtractor(fileStorage);
+        try {
+            emailExtractor.authenticate();
+            emailExtractor.extract();
+            emailExtractor.close();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
 }

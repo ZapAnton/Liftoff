@@ -21,9 +21,9 @@ public class CommandManager {
                     throw new IllegalArgumentException("The 'pull' command expects at least 2 arguments. For usage help use the 'gradle run --args=\"help\"' command");
                 }
                 final var email = args[1];
-                final var appPass = args[2];
+                final var userToken = args[2];
                 final var destinationDir = Optional.ofNullable(args.length > 3 ? args[3] : null);
-                return new PullCommand(email, appPass, destinationDir);
+                return new PullCommand(email, userToken, destinationDir);
             default:
                 return new UnknownCommand();
         }
