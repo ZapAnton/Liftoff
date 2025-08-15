@@ -2,6 +2,7 @@ package com.example.liftoff.command;
 
 import com.example.liftoff.extractor.email.ImapGmailExtractor;
 import com.example.liftoff.storage.file.FileStorage;
+import jakarta.mail.MessagingException;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,6 +36,7 @@ class PullCommand implements Command {
 
     /**
      * Check if the provided {@code destinationDirectory} exists in the file system.
+     *
      * @return ${@code true} if {@code destinationDirectory} exists, {@code false} otherwise
      * TODO: Check for the {@code emailAddress} validity
      */
@@ -59,8 +61,14 @@ class PullCommand implements Command {
                 .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
         System.out.println("Saving extracted email attachments to: " + pathForStorage.toAbsolutePath());
         final var fileStorage = new FileStorage(pathForStorage.toAbsolutePath());
-        final var emailExtractor = new ImapGmailExtractor(fileStorage);
-        emailExtractor.extract(this.emailAddress, this.userToken);
+        final var emailExtractor = new ImapGmailExtractor(this.emailAddress, this.userToken, fileStorage);
+        try {
+            emailExtractor.authenticate();
+            emailExtractor.extract();
+            emailExtractor.close();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

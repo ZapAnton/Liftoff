@@ -15,20 +15,11 @@ import java.util.stream.Stream;
 /**
  * Implements necessary logic to connect and download attachments from the Gmail address
  */
-public class ImapGmailExtractor {
-    private final Session session;
-    private final FileStorage storage;
+public class ImapGmailExtractor extends EmailExtractor {
+    private Store store;
 
-    public ImapGmailExtractor(FileStorage storage) {
-        Properties properties = new Properties();
-        properties.put("mail.imaps.host", "imap.gmail.com");
-        properties.put("mail.imaps.ssl.trust", "imap.gmail.com");
-        properties.put("mail.imaps.port", "993");
-        properties.put("mail.imaps.starttls.enable", "true");
-        properties.put("mail.imaps.connectiontimeout", "10000");
-        properties.put("mail.imaps.timeout", "10000");
-        this.session = Session.getInstance(properties);
-        this.storage = storage;
+    public ImapGmailExtractor(String emailAddress, String userToken, FileStorage storage) {
+        super(emailAddress, userToken, storage);
     }
 
     private boolean containsMultipartSafe(final Message message) {
@@ -85,11 +76,14 @@ public class ImapGmailExtractor {
         });
     }
 
-
-    public void extract(final String emailAddress, final String userToken) {
-        try (final var store = this.session.getStore("imaps")) {
-            store.connect("imap.gmail.com", emailAddress, userToken);
-            final var folder = store.getFolder("INBOX");
+    @Override
+    public void extract() {
+        if (!this.isAuthenticated) {
+            System.err.println("Cannot extract emails without authentication. Aborting");
+            return;
+        }
+        try {
+            final var folder = this.store.getFolder("INBOX");
             folder.open(Folder.READ_ONLY);
             Arrays
                     .stream(folder.getMessages())
@@ -101,11 +95,28 @@ public class ImapGmailExtractor {
                     .map(Optional::get)
                     .flatMap(this::flattenEmail)
                     .forEach(this::extractAttachmentSafe);
-        } catch (NoSuchProviderException e) {
-            System.err.println("Failed to access mail provider: " + e.getMessage());
         } catch (MessagingException e) {
             System.err.println("Failed to access mail provider: " + e.getMessage());
         }
     }
 
+    @Override
+    public void authenticate() throws MessagingException {
+        Properties properties = new Properties();
+        properties.put("mail.imaps.host", "imap.gmail.com");
+        properties.put("mail.imaps.ssl.trust", "imap.gmail.com");
+        properties.put("mail.imaps.port", "993");
+        properties.put("mail.imaps.starttls.enable", "true");
+        properties.put("mail.imaps.connectiontimeout", "10000");
+        properties.put("mail.imaps.timeout", "10000");
+        final var session = Session.getInstance(properties);
+        this.store = session.getStore("imaps");
+        this.store.connect("imap.gmail.com", this.emailAddress, this.userToken);
+        this.isAuthenticated = true;
+    }
+
+    @Override
+    public void close() throws MessagingException {
+        this.store.close();
+    }
 }
