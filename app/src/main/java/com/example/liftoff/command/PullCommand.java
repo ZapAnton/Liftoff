@@ -16,7 +16,7 @@ class PullCommand implements Command {
      */
     private final String emailAddress;
     /**
-     * Gmail Application password needed to access the email service.
+     * A token needed to access the email service API (Gmail, Graph, etc.).
      * TODO: Move this to the properties file
      */
     private final String userToken;
