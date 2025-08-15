@@ -46,10 +46,7 @@ public class ImapGmailExtractor extends EmailExtractor {
                 return Optional.empty();
             }
             return Optional.of(new Email(Optional.ofNullable(message.getSubject()), message.getReceivedDate(), attachments));
-        } catch (MessagingException e) {
-            System.err.println("Failed to access mail content: " + e.getMessage());
-            return Optional.empty();
-        } catch (IOException e) {
+        } catch (MessagingException | IOException e) {
             System.err.println("Failed to access mail content: " + e.getMessage());
             return Optional.empty();
         }
