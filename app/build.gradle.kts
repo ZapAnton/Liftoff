@@ -14,7 +14,12 @@ dependencies {
 
     implementation("com.google.api-client:google-api-client:2.0.0")
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
+    implementation("com.google.apis:google-api-services-drive:v3-rev197-1.25.0")
     implementation("com.google.apis:google-api-services-gmail:v1-rev20220404-2.0.0")
+
+    implementation("com.dropbox.core:dropbox-core-sdk:7.0.0")
+
+    implementation("com.amilesend:onedrive-java-sdk:2.0.1")
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -22,8 +22,10 @@ public class CommandManager {
                 }
                 final var email = args[1];
                 final var userToken = args[2];
-                final var destinationDir = Optional.ofNullable(args.length > 3 ? args[3] : null);
-                return new PullCommand(email, userToken, destinationDir);
+                final var rootDirectory = Optional.ofNullable(args.length > 3 ? args[3] : null);
+                //TODO Implement storage token provision to the necessary Storage implementations (Dropbox, etc.)
+                final var storageToken = Optional.ofNullable(args.length > 4 ? args[4] : null);
+                return new PullCommand(email, userToken, rootDirectory);
             default:
                 return new UnknownCommand();
         }
