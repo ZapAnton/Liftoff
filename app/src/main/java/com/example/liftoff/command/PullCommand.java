@@ -28,14 +28,14 @@ class PullCommand implements Command {
     /**
      * An optional directory path for the downloaded attachments
      */
-    private final Optional<String> destinationDirectory;
+    private final Optional<String> rootDirectory;
 
     private static String DEFAULT_DESTINATION_DIRECTORY = "email_attachments_downloads";
 
-    public PullCommand(String emailAddress, String userToken, Optional<String> destinationDirectory) {
+    public PullCommand(String emailAddress, String userToken, Optional<String> rootDirectory) {
         this.emailAddress = emailAddress;
         this.userToken = userToken;
-        this.destinationDirectory = destinationDirectory;
+        this.rootDirectory = rootDirectory;
     }
 
     /**
@@ -47,8 +47,8 @@ class PullCommand implements Command {
     @Override
     public boolean isValid() {
         var isValid = true;
-        if (this.destinationDirectory.isPresent() && !Files.exists(Paths.get(this.destinationDirectory.get()))) {
-            System.err.println("Provided destination path " + this.destinationDirectory.get() + " for the downloaded attachments does not exist.\nPlease make sure that the provided path is valid and exists in the file system");
+        if (this.rootDirectory.isPresent() && !Files.exists(Paths.get(this.rootDirectory.get()))) {
+            System.err.println("Provided destination path " + this.rootDirectory.get() + " for the downloaded attachments does not exist.\nPlease make sure that the provided path is valid and exists in the file system");
             isValid = false;
         }
         return isValid;
@@ -87,7 +87,7 @@ class PullCommand implements Command {
      */
     @Override
     public void execute() {
-        final var rootPath = this.destinationDirectory
+        final var rootPath = this.rootDirectory
                 .map(s -> Paths.get(s).toAbsolutePath())
                 .orElseGet(() -> Paths.get("", DEFAULT_DESTINATION_DIRECTORY));
         System.out.println("Saving extracted email attachments to: " + rootPath.toAbsolutePath());
