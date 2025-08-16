@@ -5,11 +5,8 @@ import jakarta.mail.*;
 import jakarta.mail.internet.MimeBodyPart;
 
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Properties;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -54,22 +51,29 @@ public class ImapGmailExtractor extends EmailExtractor {
     }
 
     private void extractAttachmentSafe(final DirectoryAttachmentPair pair) {
-        try {
-            this.storage.createDirectory(pair.directoryPath());
-            final var attachmentPath = Paths.get(pair.directoryPath().toString(), pair.attachment().getFileName());
-            pair.attachment().saveFile(attachmentPath.toString());
+        try (final var attachmentStream = pair.attachment().getInputStream()) {
+            this.storage.storeFile(
+                    attachmentStream,
+                    pair.attachment().getFileName(),
+                    Optional.of(pair.attachmentDirectoryName())
+            );
         } catch (IOException e) {
-            System.err.println("Failed to create directory " + pair.directoryPath() + " " + e.getClass() + ": " + e.getMessage());
+            System.err.println("Failed to store file to " + pair.attachmentDirectoryName() + " " + e.getClass() + ": " + e.getMessage());
         } catch (MessagingException e) {
             System.err.println("Failed to access mail content: " + e.getMessage());
         }
 
     }
 
+    private String buildAttachmentDirectoryName(final Date receivedDate, final Optional<String> subject) {
+        final var receivedDateFormatted = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss").format(receivedDate);
+        return receivedDateFormatted + "_" + subject.orElse("None");
+    }
+
     private Stream<DirectoryAttachmentPair> flattenEmail(final Email email) {
         return email.attachments().stream().map(attachment -> {
-            final var directoryPath = this.storage.buildEmailFilePath(email.received(), email.subject());
-            return new DirectoryAttachmentPair(directoryPath, attachment);
+            final var attachmentDirectoryName = buildAttachmentDirectoryName(email.received(), email.subject());
+            return new DirectoryAttachmentPair(attachmentDirectoryName, attachment);
         });
     }
 

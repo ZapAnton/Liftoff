@@ -1,33 +1,37 @@
 package com.example.liftoff.storage.file;
 
 
+import com.example.liftoff.storage.Storage;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 /**
  * Implements logic to save attachments to the file system.
- * TODO: Decouple the saving logic from the ${@code ImapGmailExtractor} class
  */
-public class FileStorage {
+public class FileStorage implements Storage {
 
-    private final Path destinationDirectory;
+    private final Path rootDirectory;
 
-    public FileStorage(final Path destinationDirectory) {
-        this.destinationDirectory = destinationDirectory;
+    public FileStorage(final Path rootDirectory) {
+        this.rootDirectory = rootDirectory;
     }
 
-    public Path buildEmailFilePath(final Date receivedDate, final Optional<String> subject) {
-        final var receivedDateFormatted = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss").format(receivedDate);
-        final var attachmentDirectoryName = receivedDateFormatted + "_" + subject.orElse("None");
-        return Paths.get(this.destinationDirectory.toString(), attachmentDirectoryName);
-    }
-
-    public void createDirectory(Path path) throws IOException {
-        Files.createDirectories(path);
+    @Override
+    public void storeFile(InputStream file, String fileName, Optional<String> fileDirectoryName) throws IOException {
+        final var directoryPath = Paths.get(this.rootDirectory.toString(), fileDirectoryName.orElse(""));
+        if (fileDirectoryName.isPresent() && !Files.exists(directoryPath)) {
+            Files.createDirectory(directoryPath);
+        }
+        Files.copy(
+                file,
+                Paths.get(directoryPath.toString(), fileName),
+                StandardCopyOption.REPLACE_EXISTING
+        );
     }
 }
