@@ -20,6 +20,7 @@ public class DropboxStorage implements Storage {
 
     @Override
     public void storeFile(InputStream file, String fileName, Optional<String> fileDirectoryName) throws Exception {
+        // TODO implement and test Dropbox storage
         final var config = DbxRequestConfig.newBuilder("test").build();
         DbxClientV2 client = new DbxClientV2(config, accessToken);
         client.files().uploadBuilder(this.rootDirectory.toString()).withMode(WriteMode.OVERWRITE).uploadAndFinish(file);
