@@ -1,13 +1,13 @@
 package com.example.liftoff.extractor.email;
 
-import com.example.liftoff.storage.filesystem.FileStorage;
+import com.example.liftoff.storage.Storage;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 
 public class GmailExtractor extends EmailExtractor {
     private Gmail service = null;
 
-    public GmailExtractor(String emailAddress, String userToken, FileStorage storage) {
+    public GmailExtractor(String emailAddress, String userToken, Storage storage) {
         super(emailAddress, userToken, storage);
     }
 

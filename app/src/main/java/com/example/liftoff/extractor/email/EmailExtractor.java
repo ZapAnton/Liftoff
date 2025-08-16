@@ -1,7 +1,7 @@
 package com.example.liftoff.extractor.email;
 
 import com.example.liftoff.extractor.Extractor;
-import com.example.liftoff.storage.filesystem.FileStorage;
+import com.example.liftoff.storage.Storage;
 
 /**
  * A generic abstract extractor class, that holds
@@ -11,9 +11,9 @@ public abstract class EmailExtractor implements Extractor {
     protected boolean isAuthenticated = false;
     protected final String emailAddress;
     protected final String userToken;
-    protected final FileStorage storage;
+    protected final Storage storage;
 
-    protected EmailExtractor(final String emailAddress, final String userToken, FileStorage storage) {
+    protected EmailExtractor(final String emailAddress, final String userToken, Storage storage) {
         this.emailAddress = emailAddress;
         this.userToken = userToken;
         this.storage = storage;

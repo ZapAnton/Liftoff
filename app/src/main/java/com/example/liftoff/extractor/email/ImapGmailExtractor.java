@@ -1,6 +1,6 @@
 package com.example.liftoff.extractor.email;
 
-import com.example.liftoff.storage.filesystem.FileStorage;
+import com.example.liftoff.storage.Storage;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeBodyPart;
 
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class ImapGmailExtractor extends EmailExtractor {
     private Store store;
 
-    public ImapGmailExtractor(String emailAddress, String userToken, FileStorage storage) {
+    public ImapGmailExtractor(String emailAddress, String userToken, Storage storage) {
         super(emailAddress, userToken, storage);
     }
 

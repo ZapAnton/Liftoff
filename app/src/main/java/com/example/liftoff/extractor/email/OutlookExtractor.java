@@ -1,14 +1,15 @@
 package com.example.liftoff.extractor.email;
 
-import com.example.liftoff.storage.filesystem.FileStorage;
+
+import com.example.liftoff.storage.Storage;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 
 import java.util.Properties;
 
-public class OutlookExtractor extends EmailExtractor{
+public class OutlookExtractor extends EmailExtractor {
     private GraphServiceClient client = null;
 
-    public OutlookExtractor(String emailAddress, String userToken, FileStorage storage) {
+    public OutlookExtractor(String emailAddress, String userToken, Storage storage) {
         super(emailAddress, userToken, storage);
     }
 
