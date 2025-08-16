@@ -1,6 +1,6 @@
 package com.example.liftoff.extractor.email;
 
-import com.example.liftoff.storage.file.FileStorage;
+import com.example.liftoff.storage.filesystem.FileStorage;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 
 import java.util.Properties;

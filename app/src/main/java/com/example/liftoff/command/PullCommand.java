@@ -4,7 +4,7 @@ import com.example.liftoff.extractor.email.EmailExtractor;
 import com.example.liftoff.extractor.email.GmailExtractor;
 import com.example.liftoff.extractor.email.ImapGmailExtractor;
 import com.example.liftoff.extractor.email.OutlookExtractor;
-import com.example.liftoff.storage.file.FileStorage;
+import com.example.liftoff.storage.filesystem.FileStorage;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

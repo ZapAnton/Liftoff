@@ -1,6 +1,6 @@
 package com.example.liftoff.extractor.email;
 
-import com.example.liftoff.storage.file.FileStorage;
+import com.example.liftoff.storage.filesystem.FileStorage;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Message;
 

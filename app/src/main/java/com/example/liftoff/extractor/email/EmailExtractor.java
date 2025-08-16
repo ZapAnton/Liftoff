@@ -1,7 +1,7 @@
 package com.example.liftoff.extractor.email;
 
 import com.example.liftoff.extractor.Extractor;
-import com.example.liftoff.storage.file.FileStorage;
+import com.example.liftoff.storage.filesystem.FileStorage;
 
 /**
  * A generic abstract extractor class, that holds
