@@ -18,5 +18,5 @@ public interface Storage {
      * @param fileDirectoryName - the name of the directory in the storage, where the file
      *                          will be stored (if the storage supports directories)
      */
-    void storeFile(final InputStream file, final String fileName, final Optional<String> fileDirectoryName) throws IOException;
+    void storeFile(final InputStream file, final String fileName, final Optional<String> fileDirectoryName) throws Exception;
 }

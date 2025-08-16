@@ -57,10 +57,10 @@ public class ImapGmailExtractor extends EmailExtractor {
                     pair.attachment().getFileName(),
                     Optional.of(pair.attachmentDirectoryName())
             );
-        } catch (IOException e) {
-            System.err.println("Failed to store file to " + pair.attachmentDirectoryName() + " " + e.getClass() + ": " + e.getMessage());
         } catch (MessagingException e) {
             System.err.println("Failed to access mail content: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Failed to store file to " + pair.attachmentDirectoryName() + " " + e.getClass() + ": " + e.getMessage());
         }
 
     }
