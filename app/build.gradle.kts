@@ -19,6 +19,8 @@ dependencies {
 
     implementation("com.dropbox.core:dropbox-core-sdk:7.0.0")
 
+    implementation("com.amilesend:onedrive-java-sdk:2.0.1")
+
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
