@@ -6,12 +6,12 @@ Currently only the `Gmail` -> `Local Filesystem` connection is implemented. The 
 
 ## Building
 
-The application is developed using `Java 21` and `Gradle`.
+The application is developed using `Scala 2.13.12` and `sbt`.
 
 To build simply run:
 
 ```bash
-$ ./gradlew build
+$ sbt compile
 ```
 
 ## Usage
@@ -19,17 +19,17 @@ $ ./gradlew build
 Display the help message:
 
 ```bash
-$ ./gradlew run --args="help"
+$ sbt "run help"
 ```
 
 Download attachments from the specified email to the default directory:
 
 ```bash
-$ ./gradlew run --args="pull <your email address> \"<some app password>\""
+$ sbt "run pull <your email address> \"<some app password>\""
 ```
 
 You may provide a specific directory to put the downloaded attachments (make sure that the directory exists before using the command):
 
 ```bash
-$ ./gradlew run --args="pull <your email address> \"<some app password>\" /path/to/your/chosen/directory"
+$ sbt "run pull <your email address> \"<some app password>\" /path/to/your/chosen/directory"
 ```
