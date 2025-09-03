@@ -1,6 +1,6 @@
 package com.example.liftoff.extractor.email
 
-import com.example.liftoff.extractor.{ExtractorAuthError, ExtractorConnectionCloseError, ExtractorConnectionError, ExtractorError}
+import com.example.liftoff.error.{ExtractorAuthError, ExtractorConnectionCloseError, ExtractorConnectionError, ExtractorError}
 import com.example.liftoff.storage.Storage
 import jakarta.mail._
 import jakarta.mail.internet.MimeBodyPart
@@ -9,7 +9,6 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Properties
 import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
-import scala.jdk.OptionConverters.RichOption
 import scala.util.{Failure, Success, Using}
 
 class ImapGmailExtractor(emailAddress: String, userToken: String, storage: Storage) extends EmailExtractor(emailAddress: String, userToken: String, storage: Storage) {
@@ -49,7 +48,7 @@ class ImapGmailExtractor(emailAddress: String, userToken: String, storage: Stora
       this.storage.storeFile(
         attachmentStream,
         attachment.getFileName,
-        Some(directory_name).toJava)
+        Some(directory_name))
     } match {
       case Failure(e) => Console.err.println(s"Failed to store file to $directory_name ${e.getClass}: ${e.getMessage}")
       case Success(_) =>

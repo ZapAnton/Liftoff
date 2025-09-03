@@ -1,5 +1,7 @@
 package com.example.liftoff.command
 
+import com.example.liftoff.error.{CommandError, NoArgumentsError, PullCommandArgumentsError}
+
 trait Command {
   def isValid: Boolean
 
