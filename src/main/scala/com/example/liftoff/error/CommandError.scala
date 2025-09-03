@@ -1,4 +1,4 @@
-package com.example.liftoff.command
+package com.example.liftoff.error
 
 sealed trait CommandError {
   def message: String

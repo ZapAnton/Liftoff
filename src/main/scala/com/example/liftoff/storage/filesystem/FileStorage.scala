@@ -1,6 +1,7 @@
 package com.example.liftoff.storage.filesystem
 
-import com.example.liftoff.storage.{Storage, StorageDirectoryCreationError, StorageError, StorageFileCopyError}
+import com.example.liftoff.error.{StorageDirectoryCreationError, StorageError, StorageFileCopyError}
+import com.example.liftoff.storage.Storage
 
 import java.io.{IOException, InputStream}
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}

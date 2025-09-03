@@ -1,4 +1,4 @@
-package com.example.liftoff.storage
+package com.example.liftoff.error
 
 sealed trait StorageError {
   def message: String

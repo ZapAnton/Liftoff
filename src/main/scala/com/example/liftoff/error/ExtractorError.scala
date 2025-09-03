@@ -1,4 +1,4 @@
-package com.example.liftoff.extractor
+package com.example.liftoff.error
 
 sealed trait ExtractorError {
   def message: String

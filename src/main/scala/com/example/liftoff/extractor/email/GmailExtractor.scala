@@ -1,6 +1,6 @@
 package com.example.liftoff.extractor.email
 
-import com.example.liftoff.extractor.ExtractorError
+import com.example.liftoff.error.ExtractorError
 import com.example.liftoff.storage.Storage
 
 class GmailExtractor(emailAddress: String, userToken: String, storage: Storage) extends EmailExtractor(emailAddress: String, userToken: String, storage: Storage) {

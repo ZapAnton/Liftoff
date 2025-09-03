@@ -1,6 +1,7 @@
 package com.example.liftoff.storage.web
 
-import com.example.liftoff.storage.{Storage, StorageError}
+import com.example.liftoff.error.StorageError
+import com.example.liftoff.storage.Storage
 
 import java.io.InputStream
 
