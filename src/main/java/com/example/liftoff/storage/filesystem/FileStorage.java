@@ -4,10 +4,7 @@ package com.example.liftoff.storage.filesystem;
 import com.example.liftoff.storage.Storage;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.Optional;
 
 /**
@@ -25,7 +22,10 @@ public class FileStorage implements Storage {
     public void storeFile(InputStream file, String fileName, Optional<String> fileDirectoryName) throws Exception {
         final var directoryPath = Paths.get(this.rootDirectory.toString(), fileDirectoryName.orElse(""));
         if (fileDirectoryName.isPresent() && !Files.exists(directoryPath)) {
-            Files.createDirectory(directoryPath);
+            try {
+                Files.createDirectory(directoryPath);
+            } catch (FileAlreadyExistsException ignored) {
+            }
         }
         Files.copy(
                 file,
