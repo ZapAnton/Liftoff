@@ -1,6 +1,7 @@
-ThisBuild / scalaVersion     := "2.13.12"
+ThisBuild / scalaVersion     := "2.13.16"
 
 ThisBuild / libraryDependencies ++= List(
+  "org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0",
   "org.eclipse.angus" % "angus-mail" % "2.0.3",
   "com.azure" % "azure-identity" % "1.17.0",
   "com.microsoft.graph" % "microsoft-graph" % "6.49.0",

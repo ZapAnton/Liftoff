@@ -1,6 +1,6 @@
 package com.example.liftoff.command
 
-import com.example.liftoff.extractor.email.{EmailExtractor, GmailExtractor, ImapGmailExtractor, OutlookExtractor}
+import com.example.liftoff.extractor.email.{EmailExtractor, ImapGmailExtractor}
 import com.example.liftoff.storage.Storage
 import com.example.liftoff.storage.filesystem.FileStorage
 
@@ -17,8 +17,8 @@ class PullCommand(email: String, userToken: String, rootDirectory: Option[String
     })
 
   private def chooseSpecificEmailExtractor(fileStorage: Storage): EmailExtractor = this.email.split("@").last match {
-//    case "gmail.com" => new GmailExtractor(this.email, this.userToken, fileStorage)
-//    case "outlook.com" => new OutlookExtractor(this.email, this.userToken, fileStorage)
+    //    case "gmail.com" => new GmailExtractor(this.email, this.userToken, fileStorage)
+    //    case "outlook.com" => new OutlookExtractor(this.email, this.userToken, fileStorage)
     // TODO: Since only ImapGmailAPI is implemented, fallback to it as a default. Uncomment after implementing GmailExtractor and OutlookExtractor
     case _ => new ImapGmailExtractor(this.email, this.userToken, fileStorage)
   }
@@ -34,12 +34,10 @@ class PullCommand(email: String, userToken: String, rootDirectory: Option[String
     println(s"Saving extracted email attachments to: $rootPath")
     val storage = this.chooseStorage(rootPath)
     val emailExtractor = this.chooseSpecificEmailExtractor(storage)
-    try {
-      emailExtractor.authenticate()
-      emailExtractor.extract()
-      emailExtractor.close()
-    } catch {
-      case e: Exception => Console.err.println(e.getMessage)
-    }
+    emailExtractor
+      .authenticate()
+      .orElse(emailExtractor.extract())
+      .orElse(emailExtractor.close())
+      .foreach(error => Console.err.println(error.message))
   }
 }
