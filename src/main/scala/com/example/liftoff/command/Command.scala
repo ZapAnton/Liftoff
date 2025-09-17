@@ -17,7 +17,7 @@ object Command {
       } else {
         val pullCommand = new PullCommand(
           email = rest(0),
-          userToken = rest(1),
+          credentialPath = rest(1),
           rootDirectory = rest.lift(2),
         )
         Right(pullCommand)
