@@ -1,6 +1,7 @@
-package com.example.liftoff.extractor.email
+package com.example.liftoff.extractor.email.imap
 
 import com.example.liftoff.error.{ExtractorAuthError, ExtractorConnectionCloseError, ExtractorConnectionError, ExtractorError}
+import com.example.liftoff.extractor.email.EmailExtractor
 import com.example.liftoff.storage.Storage
 import jakarta.mail._
 import jakarta.mail.internet.MimeBodyPart

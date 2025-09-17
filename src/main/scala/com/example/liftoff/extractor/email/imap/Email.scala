@@ -1,4 +1,4 @@
-package com.example.liftoff.extractor.email
+package com.example.liftoff.extractor.email.imap
 
 import jakarta.mail.internet.MimeBodyPart
 
