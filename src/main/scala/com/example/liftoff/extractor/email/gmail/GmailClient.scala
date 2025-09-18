@@ -11,8 +11,6 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.{Gmail, GmailScopes}
 import io.circe
-import io.circe.Decoder
-import io.circe.generic.semiauto.deriveDecoder
 import sttp.client3.circe.asJson
 import sttp.client3.{ResponseException, SimpleHttpClient, UriContext, basicRequest}
 
@@ -20,18 +18,10 @@ import java.io.{File, InputStreamReader}
 import java.nio.file.{Files, Paths}
 import scala.jdk.CollectionConverters._
 
-
-// TODO Cred Path parameter
 class GmailClient {
   private val jsonFactory = GsonFactory.getDefaultInstance
   private var accessToken: Option[String] = None
   private val httpClient = SimpleHttpClient()
-
-  private implicit val headerDecoder: Decoder[Header] = deriveDecoder[Header]
-  private implicit val messagePartBodyDecoder: Decoder[MessagePartBody] = deriveDecoder[MessagePartBody]
-  private implicit lazy val messagePartDecoder: Decoder[MessagePart] = deriveDecoder[MessagePart]
-  private implicit val messageDecoder: Decoder[Message] = deriveDecoder[Message]
-  private implicit val responseDecoder: Decoder[MessageList] = deriveDecoder[MessageList]
 
   private def getCredentials(transport: NetHttpTransport, credentialsPath: String): Credential = {
     val scopes = List(GmailScopes.GMAIL_READONLY)

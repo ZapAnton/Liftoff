@@ -1,3 +1,10 @@
 package com.example.liftoff.extractor.email.gmail.objects
 
-case class Header(name: String, value: String)
+import io.circe.Decoder
+import io.circe.generic.semiauto.deriveDecoder
+
+final case class Header(name: String, value: String)
+
+object Header {
+   implicit val headerDecoder: Decoder[Header] = deriveDecoder[Header]
+}
