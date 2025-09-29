@@ -11,8 +11,8 @@ object LiftoffApp extends ZIOAppDefault {
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] = {
     for {
       cliArguments <- this.getArgs
-      command <- ZIO.from(Command.fromCLIArguments(cliArguments.toArray)).foldZIO(
-        error => Console.printError(error.message) <*> ZIO.fail(error.message),
+      command <- Command.fromCLIArguments(cliArguments.toArray).foldZIO(
+        error => ZIO.fail(error.message),
         command => ZIO.succeed(command)
       )
       _ <- if (command.isValid) ZIO.succeed(command.execute()) else ZIO.fail("Invalid command arguments")
