@@ -1,6 +1,8 @@
 ThisBuild / scalaVersion     := "2.13.16"
 
 ThisBuild / libraryDependencies ++= List(
+  "dev.zio" %% "zio" % "2.1.21",
+  "dev.zio" %% "zio-streams" % "2.1.21",
   "com.softwaremill.sttp.client3" %% "core" % "3.11.0",
   "com.softwaremill.sttp.client3" %% "circe" % "3.11.0",
   "io.circe" %% "circe-core" % "0.14.14",
