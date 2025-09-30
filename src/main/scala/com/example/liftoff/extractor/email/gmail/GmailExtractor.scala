@@ -42,11 +42,11 @@ class GmailExtractor(emailAddress: String, credentialPath: String, storage: Stor
   }
 
   private def saveAttachment(attachment: Attachment): IO[ExtractorError, Unit] = {
-    ZIO.attempt(storage.storeFile(
+    storage.storeFile(
       new ByteArrayInputStream(Base64.getUrlDecoder.decode(attachment.data)),
       attachment.fileName,
       Some(attachment.saveDirectoryName)
-    )).map(_ => ()).mapError(error => ExtractorClientError(error.getMessage))
+    ).mapError(error => ExtractorClientError(error.message))
   }
 
   override def extract(): IO[ExtractorError, Unit] = {
