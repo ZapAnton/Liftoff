@@ -1,8 +1,12 @@
 package com.example.liftoff.command
 
+import zio.{Console, UIO, ZIO}
+
 class UnknownCommand extends Command {
 
-  override def isValid: Boolean = true
+  override def isValid: UIO[Boolean] = ZIO.succeed(true)
 
-  override def execute(): Unit = Console.err.println("Unknown command received. For usage help use the 'sbt \"run help\"' command")
+  override def execute: UIO[Unit] = Console
+    .printError("Unknown command received. For usage help use the 'sbt \"run help\"' command")
+    .orElse(ZIO.succeed())
 }

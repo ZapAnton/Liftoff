@@ -1,12 +1,12 @@
 package com.example.liftoff.command
 
 import com.example.liftoff.error.{CommandError, NoArgumentsError, PullCommandArgumentsError}
-import zio.{IO, ZIO}
+import zio.{IO, UIO, ZIO}
 
 trait Command {
-  def isValid: Boolean
+  def isValid: UIO[Boolean]
 
-  def execute(): Unit
+  def execute: UIO[Unit]
 }
 
 object Command {

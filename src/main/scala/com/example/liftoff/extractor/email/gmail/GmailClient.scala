@@ -13,6 +13,7 @@ import com.google.api.services.gmail.{Gmail, GmailScopes}
 import io.circe
 import sttp.client3.circe.asJson
 import sttp.client3.{ResponseException, SimpleHttpClient, UriContext, basicRequest}
+import zio.{IO, ZIO}
 
 import java.io.{File, InputStreamReader}
 import java.nio.file.{Files, Paths}
@@ -54,7 +55,7 @@ class GmailClient {
     this.accessToken = Some(credentials.getAccessToken)
   }
 
-  def getMessageList(user: String): Either[ResponseException[String, circe.Error], MessageList] = {
+  def getMessageList(user: String): IO[ResponseException[String, circe.Error], MessageList] = {
     val messageListUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -66,10 +67,10 @@ class GmailClient {
     val messageListRequest = basicRequest
       .get(messageListUri)
       .response(asJson[MessageList])
-    this.httpClient.send(messageListRequest).body
+    ZIO.from(this.httpClient.send(messageListRequest).body)
   }
 
-  def getMessage(user: String, messageId: String): Either[ResponseException[String, circe.Error], Message] = {
+  def getMessage(user: String, messageId: String): IO[ResponseException[String, circe.Error], Message] = {
     val getMessageUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -79,10 +80,10 @@ class GmailClient {
     val getMessageRequest = basicRequest
       .get(getMessageUri)
       .response(asJson[Message])
-    this.httpClient.send(getMessageRequest).body
+    ZIO.from(this.httpClient.send(getMessageRequest).body)
   }
 
-  def getAttachment(user: String, messageId: String, attachmentId: String): Either[ResponseException[String, circe.Error], MessagePartBody] = {
+  def getAttachment(user: String, messageId: String, attachmentId: String): IO[ResponseException[String, circe.Error], MessagePartBody] = {
     val getAttachmentUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -93,6 +94,6 @@ class GmailClient {
     val getAttachmentRequest = basicRequest
       .get(getAttachmentUri)
       .response(asJson[MessagePartBody])
-    this.httpClient.send(getAttachmentRequest).body
+    ZIO.from(this.httpClient.send(getAttachmentRequest).body)
   }
 }

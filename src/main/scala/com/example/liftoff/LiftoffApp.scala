@@ -1,7 +1,7 @@
 package com.example.liftoff
 
 import com.example.liftoff.command.Command
-import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault, Console}
+import zio.{Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 
 /** Application main entry point.
  * Constructs a [[com.example.liftoff.command.Command]] object from the provided cli arguments.
@@ -15,7 +15,8 @@ object LiftoffApp extends ZIOAppDefault {
         error => ZIO.fail(error.message),
         command => ZIO.succeed(command)
       )
-      _ <- if (command.isValid) ZIO.succeed(command.execute()) else ZIO.fail("Invalid command arguments")
+      isValid <- command.isValid
+      _ <- ZIO.when(isValid) (command.execute)
     } yield ()
   }
 }
