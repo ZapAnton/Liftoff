@@ -37,6 +37,6 @@ case class GmailApiUrlBuilder(user: String = "", accessToken: String = "", messa
       s"q=${this.query}",
       s"maxResults=${this.maxResult}",
     ).mkString("&")
-    s"${this.gmailApiPrefix}/${this.user}${this.messageId}${this.attachmentId}?${queryParameters}"
+    s"${this.gmailApiPrefix}/${this.user}${this.messageId}${this.attachmentId}?$queryParameters"
   }
 }

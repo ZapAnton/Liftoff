@@ -15,3 +15,7 @@ sealed case class ExtractorConnectionError(errorText: String) extends ExtractorE
 sealed case class ExtractorConnectionCloseError(errorText: String) extends ExtractorError {
   override def message: String = s"Failed to close connection to the email provider: $errorText"
 }
+
+sealed case class ExtractorClientError(errorText: String) extends ExtractorError {
+  override def message: String = s"Failed to fetch email data: $errorText"
+}

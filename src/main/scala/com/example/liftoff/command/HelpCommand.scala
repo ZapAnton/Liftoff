@@ -1,5 +1,7 @@
 package com.example.liftoff.command
 
+import zio.{Console, UIO, ZIO}
+
 class HelpCommand extends Command {
   private val usage =
     """Liftoff
@@ -11,7 +13,7 @@ Examples:
     sbt "run pull my_email@example.com \"some application password\"" - will download all of the attachments to the default directory "./email_attachments_downloads"
     sbt "run pull my_email@example.com \"some application password\" /path/to/download/directory" - will download all of the attachments to the provided directory  """
 
-  override def isValid: Boolean = true
+  override def isValid: UIO[Boolean] = ZIO.succeed(true)
 
-  override def execute(): Unit = println(this.usage)
+  override def execute: UIO[Unit] = Console.printLine(this.usage).orElse(ZIO.succeed())
 }

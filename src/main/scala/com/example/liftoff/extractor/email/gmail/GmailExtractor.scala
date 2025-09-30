@@ -1,9 +1,10 @@
 package com.example.liftoff.extractor.email.gmail
 
-import com.example.liftoff.error.{ExtractorAuthError, ExtractorError}
+import com.example.liftoff.error.{ExtractorAuthError, ExtractorClientError, ExtractorError}
 import com.example.liftoff.extractor.email.EmailExtractor
 import com.example.liftoff.extractor.email.gmail.objects._
 import com.example.liftoff.storage.Storage
+import zio.{IO, ZIO}
 
 import java.io.ByteArrayInputStream
 import java.text.SimpleDateFormat
@@ -13,13 +14,13 @@ class GmailExtractor(emailAddress: String, credentialPath: String, storage: Stor
   private val currentUser = "me"
   private val gmailClient = new GmailClient()
 
-  override def authenticate(): Option[ExtractorError] = {
+  override def authenticate(): IO[ExtractorError, Unit] = {
     gmailClient.authenticate(credentialPath)
-    None
+    ZIO.succeed()
   }
 
-  override def close(): Option[ExtractorError] = {
-    None
+  override def close(): IO[ExtractorError, Unit] = {
+    ZIO.succeed()
   }
 
   private def extractParts(payload: MessagePart): List[(MessagePart, String)] = {
@@ -33,44 +34,41 @@ class GmailExtractor(emailAddress: String, credentialPath: String, storage: Stor
     payload.parts.get.map(part => (part, saveDirectoryName))
   }
 
-  private def downloadAttachment(part: MessagePart, saveDirectoryName: String): Option[Attachment] = {
-    this.gmailClient.getAttachment(this.currentUser, part.partId, part.body.attachmentId.get) match {
-      case Right(body) => body.data match {
-        case Some(data) => Some(Attachment(part.filename, saveDirectoryName, data.trim))
-        case None => None
-      }
-      case Left(error) =>
-        println(error)
-        None
-    }
+  private def downloadAttachment(part: MessagePart, saveDirectoryName: String): IO[ExtractorError, Attachment] = {
+    this.gmailClient
+      .getAttachment(this.currentUser, part.partId, part.body.attachmentId.get)
+      .map(downloadedBody => Attachment(part.filename, saveDirectoryName, downloadedBody.data.get.trim))
+      .mapError(error => ExtractorClientError(error.getMessage))
   }
 
-  private def saveAttachment(attachment: Attachment): Unit = {
+  private def saveAttachment(attachment: Attachment): IO[ExtractorError, Unit] = {
     storage.storeFile(
       new ByteArrayInputStream(Base64.getUrlDecoder.decode(attachment.data)),
       attachment.fileName,
       Some(attachment.saveDirectoryName)
-    )
+    ).mapError(error => ExtractorClientError(error.message))
   }
 
-  override def extract(): Option[ExtractorError] = {
-    if (!this.gmailClient.isAuthorized) {
-      return Some(ExtractorAuthError)
-    }
-    val messageList = this.gmailClient.getMessageList(this.currentUser) match {
-      case Right(body) => body
-      case Left(error) =>
-        println(error)
-        return None
-    }
-    (for (message <- messageList.messages) yield this.gmailClient.getMessage(this.currentUser, message.id))
-      .collect { case Right(downloadedMessageData) => downloadedMessageData.payload }
-      .collect { case Some(payload) => payload }
-      .collect { case payload if payload.parts.isDefined => extractParts(payload) }
-      .flatten
-      .collect { case (part, saveDirectoryName) if part.body.attachmentId.isDefined => downloadAttachment(part, saveDirectoryName) }
-      .collect { case Some(downloadedAttachment) => downloadedAttachment }
-      .foreach(saveAttachment)
-    None
+  override def extract(): IO[ExtractorError, Unit] = {
+    for {
+      _ <- ZIO.when(!this.gmailClient.isAuthorized) (ZIO.fail(ExtractorAuthError))
+      messageList <- this.gmailClient
+        .getMessageList(this.currentUser)
+        .mapError(error => ExtractorClientError(error.getMessage))
+      messagesData <- ZIO.collectAll(
+        messageList.messages
+          .map(message => this.gmailClient.getMessage(this.currentUser, message.id)
+            .mapError(error => ExtractorClientError(error.getMessage))))
+      messagePartsList <- ZIO.succeed(messagesData
+        .filter(message => message.payload.isDefined && message.payload.get.parts.isDefined)
+        .flatMap(message => extractParts(message.payload.get))
+      )
+      attachmentList <- ZIO.collectAll(
+        messagePartsList
+          .filter{case (part, _) => part.body.attachmentId.isDefined}
+          .map{case (part, saveDirectoryName) => downloadAttachment(part, saveDirectoryName)}
+      )
+      _ <- ZIO.foreach(attachmentList)(saveAttachment)
+    } yield ()
   }
 }
