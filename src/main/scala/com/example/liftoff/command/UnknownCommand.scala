@@ -8,5 +8,5 @@ class UnknownCommand extends Command {
 
   override def execute: UIO[Unit] = Console
     .printError("Unknown command received. For usage help use the 'sbt \"run help\"' command")
-    .orElse(ZIO.succeed())
+    .ignore
 }

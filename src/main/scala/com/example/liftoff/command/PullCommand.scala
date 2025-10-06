@@ -4,7 +4,7 @@ import com.example.liftoff.extractor.email.EmailExtractor
 import com.example.liftoff.extractor.email.gmail.GmailExtractor
 import com.example.liftoff.storage.Storage
 import com.example.liftoff.storage.filesystem.FileStorage
-import zio.{Console, UIO, ZIO}
+import zio.{Console, UIO, ZIO, ZLayer}
 
 import java.nio.file.{Files, Path, Paths}
 
@@ -30,14 +30,14 @@ class PullCommand(email: String, credentialPath: String, rootDirectory: Option[S
         _ => ZIO.succeed(false),
         exists => ZIO.succeed(exists)
       )
-      _ <- ZIO.when(!rootDirectoryExists)(Console.printError(this.rootDirectoryErrorMessage(this.rootDirectory.getOrElse(""))).orElseSucceed())
-      _ <- ZIO.when(!credentialFileExists)(Console.printError(this.credentialFileErrorMessage(credentialPath)).orElseSucceed())
+      _ <- ZIO.when(!rootDirectoryExists)(Console.printError(this.rootDirectoryErrorMessage(this.rootDirectory.getOrElse(""))).ignore)
+      _ <- ZIO.when(!credentialFileExists)(Console.printError(this.credentialFileErrorMessage(credentialPath)).ignore)
       isValid <- ZIO.succeed(rootDirectoryExists && credentialFileExists)
     } yield isValid
   }
 
-  private def chooseSpecificEmailExtractor(fileStorage: Storage): UIO[EmailExtractor] = this.email.split("@").last match {
-    case "gmail.com" => ZIO.succeed(new GmailExtractor(this.email, this.credentialPath, fileStorage))
+  private def chooseSpecificEmailExtractor(storage: Storage): UIO[EmailExtractor] = this.email.split("@").last match {
+    case "gmail.com" => ZIO.succeed(new GmailExtractor(this.email, this.credentialPath, storage))
     //    case "outlook.com" => new OutlookExtractor(this.email, this.userToken, fileStorage)
     //    case _ => new ImapGmailExtractor(this.email, this.userToken, fileStorage)
   }
@@ -48,16 +48,16 @@ class PullCommand(email: String, credentialPath: String, rootDirectory: Option[S
 
   override def execute: UIO[Unit] = {
     for {
-      rootPath <- ZIO.fromOption(this.rootDirectory).foldZIO(
+      storagePath <- ZIO.fromOption(this.rootDirectory).foldZIO(
         _ => ZIO.succeed(Paths.get("", this.defaultDestinationDirectory)),
         path => ZIO.succeed(Paths.get(path).toAbsolutePath)
       )
-      _ <- Console.printLine(s"Saving extracted email attachments to: $rootPath").orElseSucceed()
-      storage <- this.chooseStorage(rootPath)
+      _ <- Console.printLine(s"Saving extracted email attachments to: $storagePath").ignore
+      storage <- this.chooseStorage(storagePath)
       emailExtractor <- this.chooseSpecificEmailExtractor(storage)
-      _ <- emailExtractor.authenticate().catchAll(error => Console.printError(error.message).orElseSucceed())
-      _ <- emailExtractor.extract().catchAll(error => Console.printError(error.message).orElseSucceed())
-      _ <- emailExtractor.close().catchAll(error => Console.printError(error.message).orElseSucceed())
+      _ <- emailExtractor.authenticate().catchAll(error => Console.printError(error.message).ignore)
+      _ <- emailExtractor.extract().catchAll(error => Console.printError(error.message).ignore)
+      _ <- emailExtractor.close().catchAll(error => Console.printError(error.message).ignore)
     } yield ()
   }
 }

@@ -15,5 +15,5 @@ Examples:
 
   override def isValid: UIO[Boolean] = ZIO.succeed(true)
 
-  override def execute: UIO[Unit] = Console.printLine(this.usage).orElse(ZIO.succeed())
+  override def execute: UIO[Unit] = Console.printLine(this.usage).ignore
 }

@@ -12,8 +12,10 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.{Gmail, GmailScopes}
 import io.circe
 import sttp.client3.circe.asJson
-import sttp.client3.{ResponseException, SimpleHttpClient, UriContext, basicRequest}
-import zio.{IO, ZIO}
+import sttp.client3.httpclient.zio.HttpClientZioBackend
+import sttp.client3.{ResponseException, UriContext, basicRequest}
+import zio.Task
+
 
 import java.io.{File, InputStreamReader}
 import java.nio.file.{Files, Paths}
@@ -22,7 +24,6 @@ import scala.jdk.CollectionConverters._
 class GmailClient {
   private val jsonFactory = GsonFactory.getDefaultInstance
   private var accessToken: Option[String] = None
-  private val httpClient = SimpleHttpClient()
 
   private def getCredentials(transport: NetHttpTransport, credentialsPath: String): Credential = {
     val scopes = List(GmailScopes.GMAIL_READONLY)
@@ -55,7 +56,7 @@ class GmailClient {
     this.accessToken = Some(credentials.getAccessToken)
   }
 
-  def getMessageList(user: String): IO[ResponseException[String, circe.Error], MessageList] = {
+  def getMessageList(user: String): Task[Either[ResponseException[String, circe.Error], MessageList]] = {
     val messageListUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -67,10 +68,14 @@ class GmailClient {
     val messageListRequest = basicRequest
       .get(messageListUri)
       .response(asJson[MessageList])
-    ZIO.from(this.httpClient.send(messageListRequest).body)
+    HttpClientZioBackend()
+      .flatMap {
+        backend => messageListRequest.send(backend)
+      }
+      .map(_.body)
   }
 
-  def getMessage(user: String, messageId: String): IO[ResponseException[String, circe.Error], Message] = {
+  def getMessage(user: String, messageId: String): Task[Either[ResponseException[String, circe.Error], Message]] = {
     val getMessageUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -80,10 +85,14 @@ class GmailClient {
     val getMessageRequest = basicRequest
       .get(getMessageUri)
       .response(asJson[Message])
-    ZIO.from(this.httpClient.send(getMessageRequest).body)
+    HttpClientZioBackend()
+      .flatMap {
+        backend => getMessageRequest.send(backend)
+      }
+      .map(_.body)
   }
 
-  def getAttachment(user: String, messageId: String, attachmentId: String): IO[ResponseException[String, circe.Error], MessagePartBody] = {
+  def getAttachment(user: String, messageId: String, attachmentId: String): Task[Either[ResponseException[String, circe.Error], MessagePartBody]] = {
     val getAttachmentUriString = GmailApiUrlBuilder()
       .user(user)
       .accessToken(this.accessToken.get)
@@ -94,6 +103,10 @@ class GmailClient {
     val getAttachmentRequest = basicRequest
       .get(getAttachmentUri)
       .response(asJson[MessagePartBody])
-    ZIO.from(this.httpClient.send(getAttachmentRequest).body)
+    HttpClientZioBackend()
+      .flatMap {
+        backend => getAttachmentRequest.send(backend)
+      }
+      .map(_.body)
   }
 }
